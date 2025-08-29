@@ -15,13 +15,16 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.jkenyon.alugavagamobile"
+      "bundleIdentifier": "com.alugavaga.alugavagaMobile",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff",
-        "package": "com.jkenyon.alugavagamobile"
+        "package": "com.alugavaga.alugavagaMobile"
       },
       "edgeToEdgeEnabled": true
     },
@@ -36,6 +39,12 @@
     "experiments": {
       "typedRoutes": true,
       "tsconfigPaths": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d2a30115-7047-4d2f-96cd-f03443e1f775"
+      }
     }
   }
 }
