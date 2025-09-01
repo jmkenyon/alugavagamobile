@@ -1,15 +1,41 @@
-import { View, Text } from 'react-native'
-import React from 'react'
-import { Link } from 'expo-router'
+import { View, Text, ActivityIndicator } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Stack } from "expo-router";
+import ExploreHeader from "@/components/ExploreHeader";
+import Listings from "@/components/Listings";
+import { fetchListings } from "@/lib/api/fetchListings";
+import Colors from "@/constants/Colors";
 
-const page = () => {
+const Page = () => {
+  const [listings, setListings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchListings()
+      .then(setListings)
+      .catch((err) => {
+        console.error("Error fetching listings:", err);
+        setError("Erro ao carregar as vagas");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
-    <View>
-      <Link href={"/(modals)/login"}>Entrar</Link>
-      <Link href={"/(modals)/booking"}>Reservar</Link>
-      <Link href={"/anuncio/1897"}>Detalhes da Vaga</Link>
+    <View style={{ flex: 1, marginTop: 150 }}>
+      <Stack.Screen options={{ header: () => <ExploreHeader /> }} />
+      
+      {loading ? (
+        <ActivityIndicator size="large" color={Colors.primary} />
+      ) : error ? (
+        <Text style={{ color: "red", textAlign: "center", marginTop: 20 }}>
+          {error}
+        </Text>
+      ) : (
+        <Listings listings={listings} />
+      )}
     </View>
-  )
-}
+  );
+};
 
-export default page
+export default Page;

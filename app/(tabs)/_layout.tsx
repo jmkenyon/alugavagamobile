@@ -27,7 +27,7 @@ const Layout = () => {
       <Tabs.Screen
         name="host"
         options={{
-          tabBarLabel: "Anfitrião",
+          tabBarLabel: "Anunciar",
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="garage" size={size} color={color} />
           ),
