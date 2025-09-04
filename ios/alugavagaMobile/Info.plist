@@ -27,8 +27,8 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>alugavagamobile</string>
-          <string>com.alugavaga.alugavagaMobile</string>
+          <string>com.alugavaga</string>
+          <string>com.alugavaga</string>
         </array>
       </dict>
       <dict>

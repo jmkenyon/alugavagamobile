@@ -55,6 +55,7 @@ const Layout = () => {
         name="profile"
         options={{
           tabBarLabel: "Perfil",
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Feather name="user" size={size} color={color} />
           ),

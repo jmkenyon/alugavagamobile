@@ -70,7 +70,7 @@ function RootLayoutNav() {
           ),
         }}
       />
-      <Stack.Screen name="anuncio/[id]" options={{headerTitle: ''}}/>
+      <Stack.Screen name="anuncio/[id]" options={{headerTitle: '', headerTransparent: true}}/>
       <Stack.Screen name="(modals)/booking" options={{
         presentation: 'transparentModal',
         animation: 'fade',

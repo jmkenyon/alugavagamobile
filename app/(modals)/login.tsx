@@ -124,6 +124,8 @@ const AuthScreen = () => {
 
       // Save JWT in secure storage
       await SecureStore.setItemAsync("token", loginData.token);
+      console.log("💾 Token length:", loginData.token?.length);
+
       //  Store token securely
       console.log("💾 Storing token in SecureStore:", loginData?.token);
       await SecureStore.setItemAsync("token", loginData?.token ?? "");

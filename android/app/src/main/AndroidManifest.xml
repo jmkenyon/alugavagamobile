@@ -26,6 +26,7 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="alugavagamobile"/>
         <data android:scheme="exp+alugavagamobile"/>
+        <data android:scheme="com.alugavaga"/>
       </intent-filter>
     </activity>
   </application>
