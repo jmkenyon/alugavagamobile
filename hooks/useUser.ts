@@ -46,5 +46,6 @@ export function useUser() {
     fetchUser();
   }, []);
 
-  return { user, loading, error };
+  return { user, setUser, loading, error }; 
+
 }
