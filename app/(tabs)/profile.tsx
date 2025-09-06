@@ -139,6 +139,7 @@ const Profile = () => {
 
   const onCaptureImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
+      // @ts-ignore
       mediaTypes: ImagePicker.MediaType,
       allowsEditing: true,
       quality: 0.75,

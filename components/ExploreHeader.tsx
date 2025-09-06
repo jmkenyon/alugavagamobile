@@ -19,9 +19,7 @@ const ExploreHeader = () => {
               </View>
             </TouchableOpacity>
           </Link>
-          <TouchableOpacity style={styles.filterBtn}>
-            <Ionicons name="options-outline" size={24} color="black" />
-          </TouchableOpacity>
+
         </View>
       </View>
     </SafeAreaView>
