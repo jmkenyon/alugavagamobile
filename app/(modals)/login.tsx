@@ -19,6 +19,7 @@ import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import { useEffect } from "react";
 import * as AuthSession from "expo-auth-session";
+import { useAuth } from "@/hooks/useAuth"; // wherever your AuthProvider/useAuth is
 
 WebBrowser.maybeCompleteAuthSession();
 // 1️⃣ Define your param list
@@ -47,6 +48,7 @@ const AuthScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const { setUser } = useAuth(); // get setUser from context
   const [request, response, promptAsync] = Google.useAuthRequest({
     clientId:
       "159606730618-h1fqt1fkbjiqgpio3qmlsmk5k5evdhtb.apps.googleusercontent.com",
@@ -84,6 +86,8 @@ const AuthScreen = () => {
 
     setLoading(true);
 
+
+
     try {
       if (isSignup) {
         // 1️⃣ Register user
@@ -109,6 +113,8 @@ const AuthScreen = () => {
         }
       }
 
+      
+
       // 2️⃣ Login
       const loginRes = await fetch(`${API_URL}/api/mobile-login`, {
         method: "POST",
@@ -126,20 +132,24 @@ const AuthScreen = () => {
       await SecureStore.setItemAsync("token", loginData.token);
       console.log("💾 Token length:", loginData.token?.length);
 
+      const userRes = await fetch(`${API_URL}/api/mobile-current-user`, {
+        headers: { Authorization: `Bearer ${loginData.token}` },
+      });
+      
+      if (!userRes.ok) throw new Error("Erro ao buscar usuário");
+      
+      const currentUser = await userRes.json();
+      setUser(currentUser); // <-- Update context immediately
+
       //  Store token securely
       console.log("💾 Storing token in SecureStore:", loginData?.token);
       await SecureStore.setItemAsync("token", loginData?.token ?? "");
 
-      Alert.alert(
-        "✅ Sucesso",
-        isSignup ? "Conta criada e logada!" : "Você entrou com sucesso!"
-      );
 
       // 4️⃣ Navigate and reset stack
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "index" }],
-      });
+      navigation.goBack();
+
+
     } catch (err: any) {
       console.error("❌ Auth error:", err);
       Alert.alert("❌ Erro", err.message || "Algo deu errado");

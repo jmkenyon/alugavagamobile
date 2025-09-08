@@ -28,6 +28,7 @@ const Layout = () => {
         name="host"
         options={{
           tabBarLabel: "Anunciar",
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="garage" size={size} color={color} />
           ),

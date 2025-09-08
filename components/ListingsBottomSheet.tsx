@@ -13,11 +13,13 @@ import { BottomSheetFlashList } from "@gorhom/bottom-sheet/lib/typescript/compon
 
 interface Props {
   listings: any[];
+  customSnapPoints?: (string | number)[]; // optional prop
+
 }
 
-const ListingsBottomSheet = ({ listings }: Props) => {
+const ListingsBottomSheet = ({ listings, customSnapPoints}: Props) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ["10%", "99%"], []);
+  const snapPoints = useMemo(() => customSnapPoints ?? ["10%", "99%"], [customSnapPoints]);
   const [refresh, setRefresh] = React.useState(0);
 
   const showMap = () => {

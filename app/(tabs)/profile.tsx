@@ -20,11 +20,11 @@ import {
 } from "react-native-gesture-handler";
 import { API_URL } from "../config";
 import * as ImagePicker from 'expo-image-picker';
+import { useAuth } from "@/hooks/useAuth";
 
 
 const Profile = () => {
-  const [signedIn, setSignedIn] = useState(false);
-  const { user, setUser, loading, error } = useUser();
+  const { user, setUser, loading, error } = useAuth();
   const [name, setName] = useState(user?.name || "");
   const [email, setEmail] = useState(user ? user.email : "");
   const [createdAt, setCreatedAt] = useState(user ? user.createdAt : "");
@@ -70,35 +70,16 @@ const Profile = () => {
     }
   };
 
-  useEffect(() => {
-    const check = async () => {
-      const token = await SecureStore.getItemAsync("token");
-
-      if (token) {
-        console.log("🔑 Token (may look cut in logs):", token);
-        console.log("📏 Token length:", token.length);
-
-        const parts = token.split(".");
-        console.log("🧩 Token parts:", parts.length); // should be 3
-      } else {
-        console.log("❌ No token found in SecureStore");
-      }
-
-      setSignedIn(!!token);
-    };
-
-    check();
-  }, []);
+  const signedIn = !!user;
 
   if (loading) return <Text>Loading...</Text>;
 
   // Sign out function
+
   const signOut = async () => {
     try {
-      // Delete the stored token
       await SecureStore.deleteItemAsync("token");
-
-      // Redirect to login modal
+      setUser(null); // <-- clear user from context
     } catch (err) {
       console.error("Error signing out:", err);
     }

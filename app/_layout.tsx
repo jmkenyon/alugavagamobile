@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { TouchableOpacity } from "react-native";
 import "react-native-reanimated";
 import React from "react";
+import { AuthProvider } from "@/hooks/useAuth"; 
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -54,7 +55,7 @@ function RootLayoutNav() {
   useEffect(() => {});
 
   return (
-    <>
+    <AuthProvider>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
@@ -102,6 +103,6 @@ function RootLayoutNav() {
         />
       </Stack>
       <FloatingWhatsApp phoneNumber="5511934076875" />
-    </>
+    </AuthProvider>
   );
 }
