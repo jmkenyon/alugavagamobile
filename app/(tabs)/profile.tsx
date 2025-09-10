@@ -163,7 +163,7 @@ const Profile = () => {
       <View style={{ flex: 1 }}>
         <View style={styles.headerContainer}>
           <Text style={styles.title}>Perfil</Text>
-          <Ionicons name="notifications-outline" size={26} color="black" />
+          {/* <Ionicons name="notifications-outline" size={26} color="black" /> */}
         </View>
 
         {user && (

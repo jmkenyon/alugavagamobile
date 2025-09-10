@@ -38,17 +38,19 @@ const Layout = () => {
         name="favoritos"
         options={{
           tabBarLabel: "Favoritos",
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="heart-outline" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="reservas"
+        name="vagas"
         options={{
-          tabBarLabel: "Reservas",
+          tabBarLabel: "Vagas",
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar-outline" size={size} color={color} />
+            <Ionicons name="car" size={size} color={color} />
           ),
         }}
       />

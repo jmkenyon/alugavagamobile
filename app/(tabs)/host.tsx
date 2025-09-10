@@ -55,8 +55,8 @@ const HostListing = () => {
   };
 
   const handleSubmit = async () => {
-    if (!selectedCategory || !selectedAddress || !imageSrc) {
-      alert("Preencha pelo menos a categoria, o endereço e uma imagem.");
+    if (!selectedCategory || !selectedAddress || !imageSrc || !price) {
+      alert("Preencha pelo menos a categoria, o endereço, o preço e uma imagem.");
       return;
     }
 
@@ -304,7 +304,7 @@ export default HostListing;
 const styles = StyleSheet.create({
   categories: {
     flexDirection: "row",
-    gap: 20,
+    justifyContent: "space-between",
     flexWrap: "wrap",
     marginBottom: 20,
   },
@@ -325,8 +325,7 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   categoryContainer: {
-    flex: 1,
-    minWidth: 100,
+    width: "48%", // 2 items per row, with small gap
     height: 100,
     borderWidth: 1,
     borderColor: Colors.subtext,
@@ -334,6 +333,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     gap: 8,
+    marginBottom: 15,
+
   },
   selectedCategory: {
     borderColor: Colors.primary,

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "alugavagaMobile",
+    "name": "Aluga Vaga",
     "slug": "alugavagaMobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,13 +9,14 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/splash-icon.png",
+      "image": "./assets/images/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.alugavaga",
+      "buildNumber": "1",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -26,7 +27,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.alugavaga.alugavagaMobile"
+      "package": "com.alugavaga"
     },
     "web": {
       "bundler": "metro",

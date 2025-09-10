@@ -61,20 +61,31 @@ const AuthScreen = () => {
   useEffect(() => {
     if (response?.type === "success") {
       const { authentication } = response;
-      console.log("✅ Got Google token:", authentication?.accessToken);
-
-      // send token to your backend (/api/mobile-login-google or reuse next-auth)
-      fetch(`${API_URL}/api/mobile-login-google`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ access_token: authentication?.accessToken }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log("📥 Backend response:", data);
-          // save JWT with SecureStore like you already do
-        })
-        .catch((err) => console.error("❌ Google login error:", err));
+  
+      (async () => {
+        try {
+          const res = await fetch(`${API_URL}/api/mobile-login-google`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ access_token: authentication?.accessToken }),
+          });
+  
+          const data = await res.json();
+          if (!res.ok) throw new Error(data?.error || "Erro ao logar com Google");
+  
+          // 1. Save JWT in SecureStore
+          await SecureStore.setItemAsync("token", data.token);
+  
+          // 2. Set user in context
+          setUser(data.user);
+  
+          // 3. Navigate back or to main app
+          navigation.goBack();
+        } catch (err: any) {
+          console.error("❌ Google login error:", err);
+          Alert.alert("Erro", err.message || "Não foi possível logar");
+        }
+      })();
     }
   }, [response]);
 

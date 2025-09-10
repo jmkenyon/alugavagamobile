@@ -17,10 +17,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		13B07F961A680F5B00A75B9A /* alugavagaMobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = alugavagaMobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07F961A680F5B00A75B9A /* AlugaVaga.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AlugaVaga.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = alugavagaMobile/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = alugavagaMobile/Info.plist; sourceTree = "<group>"; };
-		4628AFB36ECDE8ECBF4047F4 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = alugavagaMobile/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		4628AFB36ECDE8ECBF4047F4 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = alugavagaMobile/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		4CC919788E4A155837AC5A6E /* libPods-alugavagaMobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-alugavagaMobile.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F011775D1DF4ED3C94A33F0 /* Pods-alugavagaMobile.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-alugavagaMobile.debug.xcconfig"; path = "Target Support Files/Pods-alugavagaMobile/Pods-alugavagaMobile.debug.xcconfig"; sourceTree = "<group>"; };
 		A86CF98486BBBF58D9E660EA /* Pods-alugavagaMobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-alugavagaMobile.release.xcconfig"; path = "Target Support Files/Pods-alugavagaMobile/Pods-alugavagaMobile.release.xcconfig"; sourceTree = "<group>"; };
@@ -100,7 +100,7 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* alugavagaMobile.app */,
+				13B07F961A680F5B00A75B9A /* AlugaVaga.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -128,7 +128,6 @@
 				4F011775D1DF4ED3C94A33F0 /* Pods-alugavagaMobile.debug.xcconfig */,
 				A86CF98486BBBF58D9E660EA /* Pods-alugavagaMobile.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -154,7 +153,7 @@
 			);
 			name = alugavagaMobile;
 			productName = alugavagaMobile;
-			productReference = 13B07F961A680F5B00A75B9A /* alugavagaMobile.app */;
+			productReference = 13B07F961A680F5B00A75B9A /* AlugaVaga.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -348,6 +347,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = alugavagaMobile/alugavagaMobile.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 425ND576K7;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -367,7 +367,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.alugavaga;
-				PRODUCT_NAME = alugavagaMobile;
+				PRODUCT_NAME = AlugaVaga;
 				SWIFT_OBJC_BRIDGING_HEADER = "alugavagaMobile/alugavagaMobile-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -384,6 +384,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = alugavagaMobile/alugavagaMobile.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 425ND576K7;
 				INFOPLIST_FILE = alugavagaMobile/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -398,7 +399,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.alugavaga;
-				PRODUCT_NAME = alugavagaMobile;
+				PRODUCT_NAME = AlugaVaga;
 				SWIFT_OBJC_BRIDGING_HEADER = "alugavagaMobile/alugavagaMobile-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -461,10 +462,7 @@
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -519,10 +517,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;

@@ -5,6 +5,8 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Share,
+  Dimensions,
+  Linking,
 } from "react-native";
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { useLocalSearchParams, useNavigation } from "expo-router";
@@ -13,18 +15,19 @@ import Animated, {
   interpolate,
   SlideInDown,
   useAnimatedRef,
-  useAnimatedScrollHandler,
   useAnimatedStyle,
-  useSharedValue,
-  useScrollViewOffset
+  useScrollViewOffset,
 } from "react-native-reanimated";
 import Colors from "@/constants/Colors";
 import { defaultStyles } from "@/constants/Styles";
 import { Ionicons } from "@expo/vector-icons";
-
+import { handleToggleFavorite } from "../utils/handleToggleFavorite";
+import { useAuth } from "@/hooks/useAuth";
+import axios from "axios";
+import * as SecureStore from "expo-secure-store";
 
 const IMG_HEIGHT = 300;
-const { width } = require("react-native").Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 interface Listing {
   id: string;
@@ -46,137 +49,50 @@ function formatLocation(locationValue: string) {
 
   const parts = locationValue.split(",").map((p) => p.trim());
   const cityStateIndex = parts.findIndex((p) => p.includes(" - "));
-  if (cityStateIndex === -1) return locationValue; // fallback if no city-state part
+  if (cityStateIndex === -1) return locationValue;
 
-  // Street (first part, strip numbers)
   const street = parts[0]?.replace(/\d+/g, "").trim();
-
-  // Neighbourhood (everything between street and city/state)
   let neighbourhood = "";
   if (cityStateIndex > 1) {
     neighbourhood = parts.slice(1, cityStateIndex).join(", ").trim();
   }
 
-  // City and State
   let cityState = parts[cityStateIndex];
-
-  // Normalize helper to compare without accents/case
   const normalize = (str: string) =>
-    str
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase()
-      .trim();
+    str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
   if (cityState.includes(" - ")) {
     const [left, right] = cityState.split(" - ").map((p) => p.trim());
-    if (normalize(left) === normalize(right)) {
-      cityState = left;
-    }
+    if (normalize(left) === normalize(right)) cityState = left;
   }
 
-  // CEP
   const cepMatch = locationValue.match(/\b\d{5}-\d{3}\b/);
   const postcode = cepMatch ? cepMatch[0] : "";
 
-  // Build final string
-  return [street, neighbourhood, cityState, postcode]
-    .filter(Boolean)
-    .join(", ");
+  return [street, neighbourhood, cityState, postcode].filter(Boolean).join(", ");
 }
-
-
 
 const Page = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [listing, setListing] = useState<Listing | null>(null);
+  const navigation = useNavigation();
+  const { user } = useAuth();
 
+  const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const navigation = useNavigation();
+  const [localFavorites, setLocalFavorites] = useState<string[]>(user?.favoriteIds || []);
 
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
-  
   const scrollOffset = useScrollViewOffset(scrollRef.current ? scrollRef : null);
 
-
-  const shareListing = async () => {
-    try {
-      await Share.share({
-        title: listing?.title,
-        url: `https://alugavaga.com.br/anuncio/${listing?.id}`,
-        message: `Confira esta vaga: ${listing?.title} - https://alugavaga.com.br/anuncio/${listing?.id}`,
-      });
-    } catch (error) {
-      console.log("Error sharing", error);
-    }
-  };
-
-
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerBackground: () => 
-        
-        <Animated.View style={[styles.header, headerAnimatedStyle]} />,
-
-      headerRight: () => (
-        <View style={styles.bar}>
-          <TouchableOpacity style={styles.roundButton} onPress={shareListing}>
-            <Ionicons name="share-outline" size={22} color={"#000"} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.roundButton}>
-            <Ionicons name="heart-outline" size={22} color={"#000"} />
-          </TouchableOpacity>
-        </View>
-      ),
-      headerLeft: () => (
-        <TouchableOpacity
-          style={styles.roundButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="chevron-back" size={24} color={"#000"} />
-        </TouchableOpacity>
-      ),
-    });
-  }, []);
-
-
-  const imageAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [
-        {
-          translateY: interpolate(
-            scrollOffset.value,
-            [-IMG_HEIGHT, 0, IMG_HEIGHT],
-            [-IMG_HEIGHT / 2, 0, IMG_HEIGHT * 0.75]
-          ),
-        },
-        {
-          scale: interpolate(
-            scrollOffset.value,
-            [-IMG_HEIGHT, 0, IMG_HEIGHT],
-            [2, 1, 1]
-          ),
-        },
-      ],
-    };
-  });
-
-  const headerAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      opacity: interpolate(scrollOffset.value, [0, IMG_HEIGHT / 2], [0, 1]),
-    };
-  });
-
+  // Fetch single listing
   useEffect(() => {
     if (!id) return;
+    setLoading(true);
 
     fetch(`${API_URL}/api/listings?listingId=${id}`)
       .then((res) => res.json())
-      .then((data) => {
-        setListing(data); // data is the single listing with user included
-      })
+      .then((data) => setListing(data))
       .catch((err) => {
         console.error("Error fetching listing:", err);
         setError("Erro ao carregar a vaga");
@@ -184,39 +100,121 @@ const Page = () => {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) {
+  // Fetch favorites from API
+  const fetchFavorites = async () => {
+    try {
+      const token = await SecureStore.getItemAsync("token");
+      if (!token) return;
+
+      const response = await axios.get(`${API_URL}/api/favorites`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setLocalFavorites(response.data.map((fav: any) => fav.id));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    if (user) fetchFavorites();
+  }, [user]);
+
+  const toggleFavorite = async (listingId: string) => {
+    const isFavorited = localFavorites.includes(listingId);
+    setLocalFavorites((prev) =>
+      isFavorited ? prev.filter((id) => id !== listingId) : [...prev, listingId]
+    );
+    await handleToggleFavorite(listingId, isFavorited, fetchFavorites);
+  };
+
+  const shareListing = async () => {
+    if (!listing) return;
+    try {
+      await Share.share({
+        title: listing.title,
+        url: `https://alugavaga.com.br/anuncio/${listing.id}`,
+        message: `Confira esta vaga: ${listing.title} - https://alugavaga.com.br/anuncio/${listing.id}`,
+      });
+    } catch (err) {
+      console.log("Error sharing", err);
+    }
+  };
+
+  const imageAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateY: interpolate(
+          scrollOffset.value,
+          [-IMG_HEIGHT, 0, IMG_HEIGHT],
+          [-IMG_HEIGHT / 2, 0, IMG_HEIGHT * 0.75]
+        ),
+      },
+      {
+        scale: interpolate(scrollOffset.value, [-IMG_HEIGHT, 0, IMG_HEIGHT], [2, 1, 1]),
+      },
+    ],
+  }));
+
+  const headerAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(scrollOffset.value, [0, IMG_HEIGHT / 2], [0, 1]),
+  }));
+
+    const openWhatsApp = () => {
+      const url = "https://wa.me/5511934076875";
+      Linking.openURL(url).catch(() =>
+        console.warn("Cannot open WhatsApp")
+      );
+    };
+
+  // Header configuration
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerBackground: () => <Animated.View style={[styles.header, headerAnimatedStyle]} />,
+      headerRight: () =>
+        listing ? (
+          <View style={styles.bar}>
+            <TouchableOpacity style={styles.roundButton} onPress={shareListing}>
+              <Ionicons name="share-outline" size={22} color={"#000"} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.roundButton} onPress={() => toggleFavorite(listing.id)}>
+              <Ionicons
+                name={localFavorites.includes(listing.id) ? "heart" : "heart-outline"}
+                size={24}
+                color={localFavorites.includes(listing.id) ? "#F43F5E" : "#000"}
+              />
+            </TouchableOpacity>
+          </View>
+        ) : null,
+      headerLeft: () => (
+        <TouchableOpacity style={styles.roundButton} onPress={() => navigation.goBack()}>
+          <Ionicons name="chevron-back" size={24} color={"#000"} />
+        </TouchableOpacity>
+      ),
+    });
+  }, [listing, localFavorites]);
+
+  if (loading)
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" />
       </View>
     );
-  }
 
-  if (error || !listing) {
+  if (error || !listing)
     return (
       <View style={styles.center}>
         <Text>{error ?? "Listing não encontrado"}</Text>
       </View>
     );
-  }
 
   return (
     <View style={styles.container}>
-      <Animated.ScrollView
-        ref={scrollRef}
-        contentContainerStyle={{ paddingBottom: 100 }}
-        scrollEventThrottle={16}
-      >
-        <Animated.Image
-          source={{ uri: listing.imageSrc }}
-          style={[styles.image, imageAnimatedStyle]}
-        />
+      <Animated.ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: 100 }} scrollEventThrottle={16}>
+        <Animated.Image source={{ uri: listing.imageSrc }} style={[styles.image, imageAnimatedStyle]} />
 
         <View style={styles.infoContainer}>
           <Text style={styles.title}>{listing.title}</Text>
-          <Text style={styles.location}>
-            {formatLocation(listing.locationValue)}
-          </Text>
+          <Text style={styles.location}>{formatLocation(listing.locationValue)}</Text>
 
           <View style={styles.divider} />
           <View style={styles.hostView}>
@@ -226,30 +224,20 @@ const Page = () => {
           </View>
 
           <View style={styles.divider} />
-
           <Text style={styles.description}>{listing.description}</Text>
         </View>
       </Animated.ScrollView>
 
-      <Animated.View
-        style={defaultStyles.footer}
-        entering={SlideInDown.delay(200)}
-      >
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
+      <Animated.View style={defaultStyles.footer} entering={SlideInDown.delay(200)}>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
           <TouchableOpacity style={styles.footerText}>
             <Text style={styles.footerPrice}>R${listing.price}</Text>
             <Text>mês</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[defaultStyles.btn, { paddingHorizontal: 20 }]}
+          <TouchableOpacity style={[defaultStyles.btn, { paddingHorizontal: 20 }]}
+          onPress={openWhatsApp}
           >
-            <Text style={defaultStyles.btnText}>Reservar</Text>
+            <Text style={defaultStyles.btnText}>Chat</Text>
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -258,66 +246,18 @@ const Page = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  image: {
-    width,
-    height: 300,
-  },
-  infoContainer: {
-    padding: 24,
-    backgroundColor: "#fff",
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    fontFamily: "inter-sb",
-  },
-  location: {
-    fontSize: 18,
-    color: Colors.subtext,
-    marginTop: 10,
-    fontFamily: "inter",
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: Colors.subtext,
-    marginVertical: 16,
-  },
-  hostView: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  description: {
-    fontSize: 16,
-    marginTop: 10,
-    fontFamily: "inter",
-  },
-  footerText: {
-    height: "100%",
-    justifyContent: "center",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  footerPrice: {
-    fontSize: 18,
-    fontFamily: "inter-sb",
-  },
-  bar: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
-  },
+  container: { flex: 1, backgroundColor: "#fff" },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  image: { width, height: IMG_HEIGHT },
+  infoContainer: { padding: 24, backgroundColor: "#fff" },
+  title: { fontSize: 26, fontWeight: "bold", fontFamily: "inter-sb" },
+  location: { fontSize: 18, color: Colors.subtext, marginTop: 10, fontFamily: "inter" },
+  divider: { height: StyleSheet.hairlineWidth, backgroundColor: Colors.subtext, marginVertical: 16 },
+  hostView: { flexDirection: "row", alignItems: "center", gap: 12 },
+  description: { fontSize: 16, marginTop: 10, fontFamily: "inter" },
+  footerText: { height: "100%", justifyContent: "center", flexDirection: "row", alignItems: "center", gap: 4 },
+  footerPrice: { fontSize: 18, fontFamily: "inter-sb" },
+  bar: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10 },
   roundButton: {
     width: 40,
     height: 40,
@@ -325,16 +265,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
-    color: Colors.primary,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: Colors.subtext,
   },
-  header: {
-    backgroundColor: "#fff",
-    height: 100,
-    borderBottomColor: Colors.subtext,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
+  header: { backgroundColor: "#fff", height: 100, borderBottomColor: Colors.subtext, borderBottomWidth: StyleSheet.hairlineWidth },
 });
 
 export default Page;
