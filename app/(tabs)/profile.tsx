@@ -49,7 +49,7 @@ const Profile = () => {
         method: "PUT", // or PATCH, depending on your backend
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          "x-access-token": token
         },
         body: JSON.stringify({ name }),
       });
@@ -142,7 +142,7 @@ const Profile = () => {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            "x-access-token": token
           },
           body: JSON.stringify({ image: cloudUrl }),
         });

@@ -107,7 +107,7 @@ const Page = () => {
       if (!token) return;
 
       const response = await axios.get(`${API_URL}/api/favorites`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {  "x-access-token": token },
       });
       setLocalFavorites(response.data.map((fav: any) => fav.id));
     } catch (err) {

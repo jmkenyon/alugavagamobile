@@ -1,5 +1,4 @@
 import {
-  FlatList,
   View,
   Text,
   Image,
@@ -9,7 +8,7 @@ import {
 import Colors from "@/constants/Colors";
 import React, { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { router, useRouter } from "expo-router";
+import { router } from "expo-router";
 import {
   BottomSheetFlatList,
   BottomSheetFlatListMethods,
@@ -38,14 +37,13 @@ function formatLocation(locationValue: string) {
 
   const parts = locationValue.split(",").map((p) => p.trim());
   const cityStateIndex = parts.findIndex((p) => p.includes(" - "));
-  if (cityStateIndex === -1) return locationValue; // fallback
+  if (cityStateIndex === -1) return locationValue;
 
   let before = parts[cityStateIndex - 1] || "";
   let cityState = parts[cityStateIndex];
 
   before = before.replace(/\d+/g, "").trim();
 
-  // Normalize helper to compare without accents/case
   const normalize = (str: string) =>
     str
       .normalize("NFD")
@@ -53,7 +51,6 @@ function formatLocation(locationValue: string) {
       .toLowerCase()
       .trim();
 
-  // Example: "Rio de Janeiro - Rio de Janeiro" → "Rio de Janeiro"
   if (cityState.includes(" - ")) {
     const [left, right] = cityState.split(" - ").map((p) => p.trim());
     if (normalize(left) === normalize(right)) {
@@ -67,36 +64,34 @@ function formatLocation(locationValue: string) {
 export default function Listings({ listings, refresh }: ListingsProps) {
   const listRef = React.useRef<BottomSheetFlatListMethods>(null);
   const { user } = useAuth();
-  const [favorites, setFavorites] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+
   const [localFavorites, setLocalFavorites] = useState<string[]>(
     user?.favoriteIds || []
   );
+  const [loading, setLoading] = useState(false);
 
+  // Fetch favorite IDs from API
   const fetchFavorites = async () => {
+    if (!user) return;
     try {
       setLoading(true);
       const token = await SecureStore.getItemAsync("token");
-      if (!token) {
-        alert("Usuário não logado.");
-        return;
-      }
+      if (!token) return;
 
       const response = await axios.get(`${API_URL}/api/favorites`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { "x-access-token": token },
       });
 
-      setFavorites(response.data);
+      setLocalFavorites(response.data.map((f: any) => f.id));
     } catch (err) {
-      console.error(err);
-      alert("Erro ao carregar favoritos");
+      console.error("Erro ao carregar favoritos:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (user) fetchFavorites();
+    fetchFavorites();
   }, [user]);
 
   useEffect(() => {
@@ -116,7 +111,7 @@ export default function Listings({ listings, refresh }: ListingsProps) {
   const toggleFavorite = async (listingId: string) => {
     const isFavorited = localFavorites.includes(listingId);
 
-    // Optimistic UI update
+    // Optimistic update
     setLocalFavorites((prev) =>
       isFavorited ? prev.filter((id) => id !== listingId) : [...prev, listingId]
     );
@@ -126,6 +121,7 @@ export default function Listings({ listings, refresh }: ListingsProps) {
 
   return (
     <BottomSheetFlatList
+      ref={listRef}
       data={listings}
       keyExtractor={(item) => item.id}
       contentContainerStyle={{ padding: 16 }}
@@ -135,13 +131,14 @@ export default function Listings({ listings, refresh }: ListingsProps) {
         </View>
       }
       renderItem={({ item }) => {
-        const isFavorited = localFavorites.includes(item.id); // <-- use localFavorites here
+        const isFavorited = localFavorites.includes(item.id);
         return (
           <TouchableOpacity
             style={styles.card}
             onPress={() => router.push(`/anuncio/${item.id}`)}
           >
             <Image source={{ uri: item.imageSrc }} style={styles.image} />
+
             <TouchableOpacity
               style={styles.heartIcon}
               onPress={() => toggleFavorite(item.id)}
@@ -152,6 +149,7 @@ export default function Listings({ listings, refresh }: ListingsProps) {
                 color={isFavorited ? "#F43F5E" : "#fff"}
               />
             </TouchableOpacity>
+
             <Text style={styles.title}>{item.title}</Text>
             <Text style={styles.location}>
               {formatLocation(item.locationValue)}
@@ -213,9 +211,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   headerContainer: {
-    alignItems: "center", // horizontal center
-    justifyContent: "center", // vertical center of the header container
-    paddingBottom: 20, // spacing above and below
+    alignItems: "center",
+    justifyContent: "center",
+    paddingBottom: 20,
     marginTop: -15,
   },
   heartIcon: { position: "absolute", top: 10, right: 10 },

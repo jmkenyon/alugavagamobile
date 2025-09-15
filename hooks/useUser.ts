@@ -19,11 +19,13 @@ export function useUser() {
           return;
         }
 
-        const headers = { Authorization: `Bearer ${token}` };
-        console.log("➡️ Sending headers:", headers);
+
 
         const res = await fetch(`${API_URL}/api/mobile-current-user`, {
-          headers,
+          headers: {
+            "x-access-token": token
+          }
+          
         });
 
         if (!res.ok) {

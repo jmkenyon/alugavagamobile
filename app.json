@@ -27,7 +27,12 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.alugavaga"
+      "package": "com.alugavaga",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyAeUTHAJzfaVbg9eHJcNBMyduQj63ttajo"
+        }
+      }
     },
     "web": {
       "bundler": "metro",

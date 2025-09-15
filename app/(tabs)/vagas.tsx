@@ -39,7 +39,7 @@ const vagas = () => {
       const response = await axios.get(`${API_URL}/api/myListings`, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          "x-access-token": token
         },
       });
 
@@ -69,7 +69,7 @@ const vagas = () => {
       if (!token) return;
 
       await axios.delete(`${API_URL}/api/listings/${selectedListingId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {   "x-access-token": token},
       });
 
       // Refresh or remove locally
@@ -116,6 +116,8 @@ const vagas = () => {
         <FlatList
           data={vagas}
           keyExtractor={(item) => item.id}
+          refreshing={loading}           // show loading indicator
+          onRefresh={fetchListings}
           contentContainerStyle={{ padding: 16 }}
           ListHeaderComponent={
             <View style={styles.headerContainer}>

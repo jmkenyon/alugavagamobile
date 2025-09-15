@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.alugavaga.alugavagaMobile'
+    namespace 'com.alugavaga'
     defaultConfig {
-        applicationId 'com.alugavaga.alugavagaMobile'
+        applicationId 'com.alugavaga'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

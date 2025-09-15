@@ -1,4 +1,4 @@
-package com.alugavaga.alugavagaMobile
+package com.alugavaga
 
 import android.app.Application
 import android.content.res.Configuration

@@ -9,7 +9,8 @@ import { useEffect } from "react";
 import { TouchableOpacity } from "react-native";
 import "react-native-reanimated";
 import React from "react";
-import { AuthProvider } from "@/hooks/useAuth"; 
+import { AuthProvider } from "@/hooks/useAuth";
+import { FavoritesProvider } from "@/components/FavoritesContext";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -56,53 +57,55 @@ function RootLayoutNav() {
 
   return (
     <AuthProvider>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="(modals)/login"
-          options={{
-            title: "Entrar ou Cadastrar",
-            headerTitleStyle: {
-              fontFamily: "inter-sb",
-            },
-            presentation: "modal",
-            headerRight: () => (
-              <TouchableOpacity onPress={() => router.back()}>
-                <Ionicons name="close-outline" size={24} />
-              </TouchableOpacity>
-            ),
-          }}
-        />
-        <Stack.Screen
-          name="anuncio/[id]"
-          options={{ headerTitle: "", headerTransparent: true }}
-        />
-        <Stack.Screen
-          name="(modals)/booking"
-          options={{
-            presentation: "transparentModal",
-            animation: "fade",
-            headerTransparent: true,
-            headerTitle: () => <ModalHeaderText />,
-            headerRight: () => (
-              <TouchableOpacity
-                onPress={() => router.back()}
-                style={{
-                  marginRight: 10,
-                  backgroundColor: "white",
-                  borderRadius: 20,
-                  padding: 4,
-                  borderColor: Colors.subtext,
-                  borderWidth: 1,
-                }}
-              >
-                <Ionicons name="close-outline" size={22} />
-              </TouchableOpacity>
-            ),
-          }}
-        />
-      </Stack>
-      <FloatingWhatsApp phoneNumber="5511934076875" />
+      <FavoritesProvider>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="(modals)/login"
+            options={{
+              title: "Entrar ou Cadastrar",
+              headerTitleStyle: {
+                fontFamily: "inter-sb",
+              },
+              presentation: "modal",
+              headerRight: () => (
+                <TouchableOpacity onPress={() => router.back()}>
+                  <Ionicons name="close-outline" size={24} />
+                </TouchableOpacity>
+              ),
+            }}
+          />
+          <Stack.Screen
+            name="anuncio/[id]"
+            options={{ headerTitle: "", headerTransparent: true }}
+          />
+          <Stack.Screen
+            name="(modals)/booking"
+            options={{
+              presentation: "transparentModal",
+              animation: "fade",
+              headerTransparent: true,
+              headerTitle: () => <ModalHeaderText />,
+              headerRight: () => (
+                <TouchableOpacity
+                  onPress={() => router.back()}
+                  style={{
+                    marginRight: 10,
+                    backgroundColor: "white",
+                    borderRadius: 20,
+                    padding: 4,
+                    borderColor: Colors.subtext,
+                    borderWidth: 1,
+                  }}
+                >
+                  <Ionicons name="close-outline" size={22} />
+                </TouchableOpacity>
+              ),
+            }}
+          />
+        </Stack>
+        <FloatingWhatsApp phoneNumber="5511934076875" />
+      </FavoritesProvider>
     </AuthProvider>
   );
 }

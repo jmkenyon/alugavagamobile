@@ -23,7 +23,7 @@ export const handleToggleFavorite = async (
     if (isFavorited) {
       console.log("Removing favorite for listing:", listingId);
       await axios.delete(`${API_URL}/api/favorites/${listingId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {   "x-access-token": token},
       });
       console.log("Favorite removed successfully");
     } else {
@@ -32,7 +32,7 @@ export const handleToggleFavorite = async (
         `${API_URL}/api/favorites/${listingId}`,
         {},
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {  "x-access-token": token },
         }
       );
       console.log("Favorite added successfully");

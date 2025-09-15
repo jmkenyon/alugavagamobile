@@ -61,7 +61,7 @@ const AuthScreen = () => {
   useEffect(() => {
     if (response?.type === "success") {
       const { authentication } = response;
-  
+
       (async () => {
         try {
           const res = await fetch(`${API_URL}/api/mobile-login-google`, {
@@ -69,16 +69,17 @@ const AuthScreen = () => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ access_token: authentication?.accessToken }),
           });
-  
+
           const data = await res.json();
-          if (!res.ok) throw new Error(data?.error || "Erro ao logar com Google");
-  
+          if (!res.ok)
+            throw new Error(data?.error || "Erro ao logar com Google");
+
           // 1. Save JWT in SecureStore
           await SecureStore.setItemAsync("token", data.token);
-  
+
           // 2. Set user in context
           setUser(data.user);
-  
+
           // 3. Navigate back or to main app
           navigation.goBack();
         } catch (err: any) {
@@ -96,8 +97,6 @@ const AuthScreen = () => {
     }
 
     setLoading(true);
-
-
 
     try {
       if (isSignup) {
@@ -124,8 +123,6 @@ const AuthScreen = () => {
         }
       }
 
-      
-
       // 2️⃣ Login
       const loginRes = await fetch(`${API_URL}/api/mobile-login`, {
         method: "POST",
@@ -142,13 +139,22 @@ const AuthScreen = () => {
       // Save JWT in secure storage
       await SecureStore.setItemAsync("token", loginData.token);
       console.log("💾 Token length:", loginData.token?.length);
+      console.log("➡️ Fetching /mobile-current-user with header:", {
+        "x-access-token": loginData.token
+      });
+
+      console.log("🔑 Token being sent:", loginData.token);
+ 
 
       const userRes = await fetch(`${API_URL}/api/mobile-current-user`, {
-        headers: { Authorization: `Bearer ${loginData.token}` },
+        headers: {
+          "x-access-token": loginData.token,
+          "Content-Type": "application/json",
+        },
       });
-      
+
       if (!userRes.ok) throw new Error("Erro ao buscar usuário");
-      
+
       const currentUser = await userRes.json();
       setUser(currentUser); // <-- Update context immediately
 
@@ -156,11 +162,8 @@ const AuthScreen = () => {
       console.log("💾 Storing token in SecureStore:", loginData?.token);
       await SecureStore.setItemAsync("token", loginData?.token ?? "");
 
-
       // 4️⃣ Navigate and reset stack
       navigation.goBack();
-
-
     } catch (err: any) {
       console.error("❌ Auth error:", err);
       Alert.alert("❌ Erro", err.message || "Algo deu errado");

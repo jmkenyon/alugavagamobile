@@ -1,4 +1,4 @@
-package com.alugavaga.alugavagaMobile
+package com.alugavaga
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

@@ -85,7 +85,7 @@ const HostListing = () => {
       const response = await axios.post(`${API_URL}/api/listings`, payload, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // <--- important!
+          "x-access-token": token
         },
       });
 

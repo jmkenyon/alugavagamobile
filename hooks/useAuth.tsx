@@ -27,7 +27,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const res = await fetch(`${API_URL}/api/mobile-current-user`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { 
+          "x-access-token": token
+         },
       });
 
       if (!res.ok) {
